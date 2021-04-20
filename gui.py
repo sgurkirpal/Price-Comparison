@@ -10,10 +10,13 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import webbrowser
-
+from urllib.request import urlopen
+import requests
+import pandas as pd
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        self.link=None
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -175,6 +178,7 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.submit_button.clicked.connect(lambda: self.button_clicked("submit"))
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -198,7 +202,7 @@ class Ui_MainWindow(object):
         self.shopclues_button.setText(_translate("MainWindow", "Shopclues"))
         self.paytm_button.setText(_translate("MainWindow", "PaytmMall"))
 
-    def button_clicked(self,text,link=None):
+    def button_clicked(self,text):
         if text=='amazon':
             webbrowser.open('https://www.amazon.in/')
         if text=='flipkart':
@@ -220,8 +224,31 @@ class Ui_MainWindow(object):
         if text=='nykaa':
             webbrowser.open('https://www.nykaa.com/')
         if text=='submit':
-            if link==None:
-                ha=1
+            self.link=self.link_line.text()
+            ww=0
+            try:
+                urlopen(self.link)
+                ww=1
+            except:
+                print("Invalid link")
+
+            if ww==1:
+                df=pd.read_html(self.link)
+                flag=False
+                self.price=0
+                for i in range(len(df)):
+                    for col in df[i]:
+                        for j in df[i][[col]]:
+                            print(df[i][[col]][j])
+                            if j=='Price':
+                                self.price=j
+                                flag=True
+                                break
+                        if flag:
+                            break
+                    if flag:
+                        break
+                print(self.price)
                 
 
 if __name__ == "__main__":
