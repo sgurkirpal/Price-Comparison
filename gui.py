@@ -226,7 +226,12 @@ class Ui_MainWindow(object):
             webbrowser.open('https://www.nykaa.com/')
         if text=='submit':
             self.link=self.link_line.text()
+            self.email=self.email_line.text()
             ww=0
+            try:
+                df=pd.read_csv("data.csv")
+            except:
+                df=pd.DataFrame(columns=['link','email'])
             page=None
             try:
                 page=urlopen(self.link)
@@ -241,7 +246,11 @@ class Ui_MainWindow(object):
                     price = float(soup.find('span',{'id':'priceblock_ourprice'}).text.replace('₹','').replace(',',''))
                 except:
                     price=''
-                
+                print(df)
+                df=df.append(pd.DataFrame([[self.link,self.email]],columns=['link','email']),ignore_index=True)
+                #df=df.append({'link':self.link,'email':self.email},ignore_index=True)
+                print(df)
+                df.to_csv("data.csv")
 
 if __name__ == "__main__":
     import sys
