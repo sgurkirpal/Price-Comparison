@@ -13,6 +13,7 @@ import webbrowser
 from urllib.request import urlopen
 import requests
 import pandas as pd
+from bs4 import BeautifulSoup as bs
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -226,29 +227,20 @@ class Ui_MainWindow(object):
         if text=='submit':
             self.link=self.link_line.text()
             ww=0
+            page=None
             try:
-                urlopen(self.link)
+                page=urlopen(self.link)
                 ww=1
             except:
                 print("Invalid link")
 
             if ww==1:
-                df=pd.read_html(self.link)
-                flag=False
-                self.price=0
-                for i in range(len(df)):
-                    for col in df[i]:
-                        for j in df[i][[col]]:
-                            print(df[i][[col]][j])
-                            if j=='Price':
-                                self.price=j
-                                flag=True
-                                break
-                        if flag:
-                            break
-                    if flag:
-                        break
-                print(self.price)
+                soup=bs(page.read(),features="lxml")
+                title=soup.find(id='productTitle').get_text().strip()
+                try:
+                    price = float(soup.find('span',{'id':'priceblock_ourprice'}).text.replace('₹','').replace(',',''))
+                except:
+                    price=''
                 
 
 if __name__ == "__main__":
